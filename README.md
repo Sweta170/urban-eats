@@ -4,6 +4,9 @@ A full-stack food delivery web application built with the **MERN stack** (MongoD
 
 ---
 
+<img width="1893" height="869" alt="Screenshot 2026-03-19 153011" src="https://github.com/user-attachments/assets/7ceaa14e-0e7e-4e04-9bff-cb81bdf1daad" />
+
+
 ## 🚀 Tech Stack
 
 | Layer | Technology |
@@ -20,6 +23,12 @@ A full-stack food delivery web application built with the **MERN stack** (MongoD
 ---
 
 ## ✨ Features
+
+<img width="1894" height="868" alt="Screenshot 2026-03-19 153117" src="https://github.com/user-attachments/assets/580968ef-4d0f-4b8b-9734-6be4b73a0652" />
+
+<img width="1880" height="857" alt="Screenshot 2026-03-19 153036" src="https://github.com/user-attachments/assets/2cdc26df-4f54-4ec7-ab11-c3b62fa12bcb" />
+
+
 
 ### 👤 Customer
 - Register / Login with JWT-based authentication
@@ -46,6 +55,12 @@ A full-stack food delivery web application built with the **MERN stack** (MongoD
 - Role-based access control (admin / restaurant / customer)
 
 ---
+
+<img width="1900" height="874" alt="Screenshot 2026-03-19 153140" src="https://github.com/user-attachments/assets/3842d193-58c1-40bb-9440-6c22397a98ec" />
+
+<img width="1898" height="864" alt="Screenshot 2026-03-19 153210" src="https://github.com/user-attachments/assets/753291d8-d9d7-4a76-9124-a2cbf4bb92ed" />
+
+
 
 ## 📁 Project Structure
 
