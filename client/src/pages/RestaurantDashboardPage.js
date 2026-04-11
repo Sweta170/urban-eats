@@ -11,9 +11,7 @@ import {
     Clock,
     ChevronRight,
     Edit2,
-    Trash2,
-    CheckCircle2,
-    XCircle
+    Trash2
 } from "lucide-react";
 
 export default function RestaurantDashboardPage() {

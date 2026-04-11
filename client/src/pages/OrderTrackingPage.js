@@ -9,8 +9,7 @@ import {
     ArrowLeft,
     Sparkles,
     MapPin,
-    ShieldCheck,
-    ChevronRight
+    ShieldCheck
 } from "lucide-react";
 import { io } from "socket.io-client";
 import LiveMap from "../components/common/LiveMap";

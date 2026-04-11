@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import { User, Mail, Shield, LogOut, Package, Star, Clock, ChevronRight, Settings, Heart, Bell, Wallet } from "lucide-react";
+import { User, Mail, Shield, LogOut, Package, ChevronRight, Settings, Heart, Bell, Wallet } from "lucide-react";
 
 export default function ProfilePage() {
     const [user, setUser] = useState(null);

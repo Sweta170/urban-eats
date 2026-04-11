@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../utils/axiosInstance";
-import { getAccessToken } from "../utils/auth";
+// import { getAccessToken } from "../utils/auth";
 import { useNavigate, Link } from "react-router-dom";
-import { Package, Calendar, Clock, ChevronRight, ArrowLeft, Search, Filter, ShoppingBag, Sparkles, MapPin } from "lucide-react";
+import { Package, Calendar, Clock, ChevronRight, ArrowLeft, Search } from "lucide-react";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
