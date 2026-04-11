@@ -40,7 +40,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['Cash', 'Card'],
+    enum: ['Cash', 'Card', 'Wallet'],
     required: true,
   },
   paymentStatus: {
@@ -61,16 +61,42 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  loyaltyPointsEarned: {
+  walletAmountEarned: {
     type: Number,
     default: 0,
   },
-  loyaltyPointsRedeemed: {
+  walletAmountRedeemed: {
     type: Number,
     default: 0,
   },
   stripeSessionId: {
     type: String,
+  },
+  riderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DeliveryPartner',
+  },
+  deliveryStatus: {
+    type: String,
+    enum: ['pending_assignment', 'assigned', 'rider_en_route', 'picked_up', 'delivered'],
+    default: 'pending_assignment',
+  },
+  riderLocation: {
+    lat: { type: Number },
+    lng: { type: Number },
+  },
+  pickedUpAt: {
+    type: Date,
+  },
+  deliveredAt: {
+    type: Date,
+  },
+  deliveryProofUrl: {
+    type: String,
+  },
+  deliveryFee: {
+    type: Number,
+    default: 0,
   },
 }, { timestamps: true });
 

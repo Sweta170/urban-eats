@@ -3,13 +3,15 @@ const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const Food = require('../models/Food');
 const User = require('../models/User');
+const Restaurant = require('../models/Restaurant');
+const Transaction = require('../models/Transaction');
 
 const response = (success, message, data = null) => ({ success, message, data });
 
 // Place order from cart
 exports.placeOrder = async (req, res) => {
   const userId = req.user.userId;
-  const { shippingAddress, paymentMethod, promoCode, useLoyaltyPoints } = req.body;
+  const { shippingAddress, paymentMethod, promoCode, useWallet } = req.body;
 
   if (!shippingAddress || !paymentMethod) {
     return res.status(400).json(response(false, 'Shipping address and payment method are required'));
@@ -22,14 +24,16 @@ exports.placeOrder = async (req, res) => {
     }
 
     let subtotal = 0;
+    const fallbackRestaurant = await Restaurant.findOne();
     const orderItems = await Promise.all(cart.items.map(async item => {
       subtotal += item.food.price * item.quantity;
       const foodDoc = await Food.findById(item.food._id);
+      const resId = (foodDoc && foodDoc.restaurant) ? foodDoc.restaurant : (fallbackRestaurant ? fallbackRestaurant._id : item.food._id);
       return {
         food: item.food._id,
         quantity: item.quantity,
         price: item.food.price, // Store price at time of purchase
-        restaurant: foodDoc.restaurant
+        restaurant: resId
       };
     }));
 
@@ -57,22 +61,17 @@ exports.placeOrder = async (req, res) => {
       }
     }
 
-    // Loyalty Points Logic
+    // Wallet Redemption Logic
     const user = await User.findById(userId);
-    let pointsRedeemed = 0;
-    let loyaltyDiscount = 0;
+    let walletRedeemed = 0;
 
-    if (useLoyaltyPoints && user.loyaltyPoints >= 100) {
-      pointsRedeemed = user.loyaltyPoints;
-      loyaltyDiscount = Math.floor(pointsRedeemed / 10);
-      // Ensure loyalty discount doesn't make total negative after promo
-      loyaltyDiscount = Math.min(loyaltyDiscount, subtotal - discount);
-      // Since we redeem all points, calculate how many points that actually covered
-      pointsRedeemed = loyaltyDiscount * 10;
+    if (useWallet && user.walletBalance > 0) {
+      // Use as much balance as possible to cover the total
+      walletRedeemed = Math.min(user.walletBalance, subtotal - discount);
     }
 
-    const total = subtotal - discount - loyaltyDiscount;
-    const pointsEarned = Math.floor(total / 10);
+    const total = subtotal - discount - walletRedeemed;
+    const cashbackEarned = Math.floor(total * 0.05); // 5% Cashback
 
     const order = new Order({
       user: userId,
@@ -81,16 +80,39 @@ exports.placeOrder = async (req, res) => {
       shippingAddress,
       paymentMethod,
       promoCode: appliedCoupon ? appliedCoupon.code : null,
-      discount: discount + loyaltyDiscount,
-      loyaltyPointsEarned: pointsEarned,
-      loyaltyPointsRedeemed: pointsRedeemed,
-      paymentStatus: (paymentMethod === 'Card' || paymentMethod === 'Online') ? 'Paid' : 'Pending'
+      discount: discount + walletRedeemed,
+      walletAmountEarned: cashbackEarned,
+      walletAmountRedeemed: walletRedeemed,
+      paymentStatus: (paymentMethod === 'Wallet') ? 'Paid' : ((paymentMethod === 'Card') ? 'Pending' : 'Pending')
     });
 
     await order.save();
 
-    // Update User Loyalty Balance
-    user.loyaltyPoints = (user.loyaltyPoints - pointsRedeemed) + pointsEarned;
+    // Update User Wallet Balance & Create Transactions
+    if (walletRedeemed > 0) {
+      user.walletBalance -= walletRedeemed;
+      
+      await Transaction.create({
+        user: userId,
+        order: order._id,
+        amount: walletRedeemed,
+        type: 'debit',
+        description: `Paid for order #${order._id.toString().slice(-6)}`
+      });
+    }
+
+    // Earn Cashback immediately if paid by wallet, or after payment for Card
+    if (paymentMethod === 'Wallet' || paymentMethod === 'Cash') {
+      user.walletBalance += cashbackEarned;
+      await Transaction.create({
+        user: userId,
+        order: order._id,
+        amount: cashbackEarned,
+        type: 'credit',
+        description: `5% Cashback for order #${order._id.toString().slice(-6)}`
+      });
+    }
+
     await user.save();
 
     // Increment coupon usage
@@ -104,6 +126,7 @@ exports.placeOrder = async (req, res) => {
     await cart.save();
     return res.status(201).json(response(true, 'Order placed successfully', order));
   } catch (err) {
+    console.error('PLACE ORDER CRASH HTTP 500:', err);
     return res.status(500).json(response(false, 'Server error', err.message));
   }
 };

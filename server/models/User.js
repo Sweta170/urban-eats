@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'restaurant'],
+    enum: ['user', 'admin', 'restaurant', 'rider'],
     default: 'user',
   },
   addresses: [{
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Food',
   }],
-  loyaltyPoints: {
+  walletBalance: {
     type: Number,
     default: 0,
   },

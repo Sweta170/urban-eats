@@ -13,6 +13,8 @@ import {
     ChevronRight
 } from "lucide-react";
 import { io } from "socket.io-client";
+import LiveMap from "../components/common/LiveMap";
+
 
 const SOCKET_URL = "http://localhost:5000";
 
@@ -133,7 +135,13 @@ export default function OrderTrackingPage() {
                             </div>
                         </div>
 
+                        {/* Live Geographic Surveillance */}
+                        <div className="bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-6">
+                            <LiveMap status={order.status} />
+                        </div>
+
                         <div className="bg-white dark:bg-dark-card p-6 sm:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-start gap-4">
+
                             <div className="p-3 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-2xl">
                                 <MapPin className="w-5 h-5" />
                             </div>

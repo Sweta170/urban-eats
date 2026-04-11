@@ -3,7 +3,7 @@ import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
-import { CreditCard, Banknote, MapPin, CheckCircle, ArrowLeft, ChevronRight, Lock, ShieldCheck, Ticket, Star, Sparkles, ShoppingBag } from "lucide-react";
+import { CreditCard, Banknote, MapPin, CheckCircle, ArrowLeft, ChevronRight, Lock, ShieldCheck, Ticket, Star, Sparkles, ShoppingBag, Wallet } from "lucide-react";
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
@@ -13,9 +13,8 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  // Loyalty
-  const [redeemPoints, setRedeemPoints] = useState(false);
-  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  // Wallet
+  const [useWallet, setUseWallet] = useState(false);
 
   // Coupons
   const [couponCode, setCouponCode] = useState("");
@@ -37,7 +36,7 @@ export default function CheckoutPage() {
       setCart(cartData);
       setTotal(cartData.reduce((sum, item) => sum + item.food.price * item.quantity, 0));
 
-      const userRes = await axios.get("http://localhost:5000/api/auth/me");
+      const userRes = await axios.get("/auth/profile");
       setUserData(userRes.data.data);
     } catch (err) {
       console.error(err);
@@ -72,9 +71,9 @@ export default function CheckoutPage() {
     try {
       const res = await axios.post("/order", {
         shippingAddress: address,
-        paymentMethod: paymentMethod === "Online" ? "Card" : "Cash", // Map to existing enum
+        paymentMethod: paymentMethod === "Online" ? "Card" : (paymentMethod === "Wallet" ? "Wallet" : "Cash"),
         promoCode: appliedCoupon ? appliedCoupon.code : null,
-        useLoyaltyPoints: redeemPoints
+        useWallet: useWallet
       });
       if (res.data.success) {
         const orderId = res.data.data._id;
@@ -93,8 +92,8 @@ export default function CheckoutPage() {
     setLoading(false);
   };
 
-  const loyaltyDiscount = redeemPoints ? Math.floor(userData.loyaltyPoints / 10) : 0;
-  const finalTotal = total - couponDiscount - loyaltyDiscount;
+  const walletDiscount = useWallet ? Math.min(userData?.walletBalance || 0, total - couponDiscount) : 0;
+  const finalTotal = total - couponDiscount - walletDiscount;
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-bg transition-colors duration-500 pb-16">
@@ -144,24 +143,25 @@ export default function CheckoutPage() {
               />
             </section>
 
-            {/* Loyalty Compact */}
-            {userData && userData.loyaltyPoints >= 100 && (
-              <section className="bg-white dark:bg-dark-card p-6 sm:p-8 rounded-3xl border-2 border-primary-600/10 shadow-sm overflow-hidden relative">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Wallet Integration Section */}
+            {userData && userData.walletBalance > 0 && (
+              <section className="bg-white dark:bg-dark-card p-6 sm:p-8 rounded-3xl border-2 border-primary-600/10 shadow-sm overflow-hidden relative group">
+                <div className="absolute -right-4 -top-4 w-12 h-12 bg-primary-600/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-yellow-50 dark:bg-yellow-900/10 text-yellow-500 rounded-xl">
-                      <Star className="w-5 h-5 fill-current" />
+                    <div className="p-2.5 bg-primary-50 dark:bg-primary-900/10 text-primary-600 rounded-xl">
+                      <Wallet className="w-5 h-5" />
                     </div>
                     <div>
-                      <h2 className="text-base font-bold">Loyalty Points</h2>
-                      <p className="text-xs text-gray-400 font-bold">{userData.loyaltyPoints} points available</p>
+                      <h2 className="text-base font-bold">Urban Wallet</h2>
+                      <p className="text-xs text-gray-400 font-bold">₹{userData.walletBalance.toFixed(2)} balance available</p>
                     </div>
                   </div>
                   <button
-                    onClick={() => setRedeemPoints(!redeemPoints)}
-                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${redeemPoints ? 'bg-primary-600 text-white' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}`}
+                    onClick={() => setUseWallet(!useWallet)}
+                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${useWallet ? 'bg-primary-600 text-white' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}`}
                   >
-                    {redeemPoints ? "Applying Rewards" : "Use Points"}
+                    {useWallet ? "Applied" : "Use Balance"}
                   </button>
                 </div>
               </section>
@@ -279,10 +279,10 @@ export default function CheckoutPage() {
                     <span>-₹{couponDiscount}</span>
                   </div>
                 )}
-                {redeemPoints && loyaltyDiscount > 0 && (
+                {useWallet && walletDiscount > 0 && (
                   <div className="flex justify-between items-center text-[10px] font-black text-green-600 uppercase tracking-widest">
-                    <span>Loyalty Rewards</span>
-                    <span>-₹{loyaltyDiscount}</span>
+                    <span>Wallet Balance Applied</span>
+                    <span>-₹{walletDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="pt-5 border-t border-gray-100 dark:border-gray-800 flex justify-between items-end">

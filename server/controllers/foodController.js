@@ -113,6 +113,35 @@ exports.getRecommendedFoods = async (req, res) => {
   }
 };
 
+exports.getPairings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const food = await Food.findById(id);
+    if (!food) return res.status(404).json(response(false, "Food not found"));
+
+    const pairingMap = {
+      'Main Course': ['Beverage', 'Dessert', 'Starter'],
+      'Snacks': ['Beverage'],
+      'Starter': ['Main Course', 'Beverage'],
+      'South Indian': ['Beverage'],
+      'North Indian': ['Beverage', 'Rice'],
+      'Chinese': ['Starter', 'Beverage'],
+      'Dessert': ['Beverage'],
+      'Beverage': ['Snacks', 'Dessert']
+    };
+
+    const targetCategories = pairingMap[food.category] || ['Main Course'];
+    const pairings = await Food.find({
+      category: { $in: targetCategories },
+      _id: { $ne: id }
+    }).limit(4);
+
+    res.status(200).json(response(true, "Pairings fetched", pairings));
+  } catch (err) {
+    res.status(500).json(response(false, err.message));
+  }
+};
+
 exports.getAllFood = async (req, res) => {
   try {
     const { keyword, category, minPrice, maxPrice, minRating, sort } = req.query;
@@ -169,6 +198,17 @@ exports.getAllFood = async (req, res) => {
       return res.status(200).json(response(true, 'No food items found', []));
     }
     return res.status(200).json(response(true, 'Food items fetched', foodList));
+  } catch (err) {
+    return res.status(500).json(response(false, 'Server error', err.message));
+  }
+};
+
+exports.getFoodById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const food = await Food.findById(id).populate('restaurant', 'name cuisines rating');
+    if (!food) return res.status(404).json(response(false, 'Food item not found'));
+    return res.json(response(true, 'Food item fetched', food));
   } catch (err) {
     return res.status(500).json(response(false, 'Server error', err.message));
   }

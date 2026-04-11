@@ -8,6 +8,8 @@ const admin = require('../middleware/admin');
 router.get('/', foodController.getAllFood);
 router.get('/popular', foodController.getPopularFoods);
 router.get('/recommended', auth, foodController.getRecommendedFoods);
+router.get('/:id/pairings', foodController.getPairings);
+router.get('/:id', foodController.getFoodById);
 
 // Admin only
 router.post('/', auth, admin, foodController.createFood);

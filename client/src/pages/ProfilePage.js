@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import { User, Mail, Shield, LogOut, Package, Star, Clock, ChevronRight, Settings, Heart, Bell } from "lucide-react";
+import { User, Mail, Shield, LogOut, Package, Star, Clock, ChevronRight, Settings, Heart, Bell, Wallet } from "lucide-react";
 
 export default function ProfilePage() {
     const [user, setUser] = useState(null);
@@ -64,18 +64,21 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                     {/* Left Panel: Loyalty & Stats */}
                     <div className="md:col-span-4 space-y-6">
-                        <div className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group">
-                            <div className="absolute -right-4 -top-4 w-16 h-16 bg-yellow-50 dark:bg-yellow-900/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+                        <div 
+                            onClick={() => navigate('/wallet')}
+                            className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group cursor-pointer hover:border-primary-600/30 transition-all"
+                        >
+                            <div className="absolute -right-4 -top-4 w-16 h-16 bg-primary-50 dark:bg-primary-900/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
                             <div className="flex items-center gap-2 mb-4">
-                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Loyalty Points</span>
+                                <Wallet className="w-4 h-4 text-primary-600" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Urban Wallet</span>
                             </div>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-black text-gray-900 dark:text-white">{user?.loyaltyPoints || 0}</span>
-                                <span className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">XP</span>
+                                <span className="text-4xl font-black text-gray-900 dark:text-white">₹{user?.walletBalance || 0}</span>
+                                <span className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">Credits</span>
                             </div>
-                            <p className="text-[9px] text-gray-400 mt-4 leading-relaxed font-medium capitalize">
-                                Member since {new Date(user?.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            <p className="text-[9px] text-gray-400 mt-4 leading-relaxed font-medium">
+                                Tap to view transaction history
                             </p>
                         </div>
 
@@ -88,6 +91,10 @@ export default function ProfilePage() {
                                 </button>
                                 <button onClick={() => navigate('/favorites')} className="w-full flex items-center justify-between group">
                                     <span className="flex items-center gap-3 text-sm font-bold"><Heart className="w-4 h-4 text-primary-500" /> Favorites</span>
+                                    <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-primary-500 transition-colors" />
+                                </button>
+                                <button onClick={() => navigate('/wallet')} className="w-full flex items-center justify-between group text-primary-500">
+                                    <span className="flex items-center gap-3 text-sm font-bold"><Wallet className="w-4 h-4" /> Urban Wallet</span>
                                     <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-primary-500 transition-colors" />
                                 </button>
                                 <div className="h-px bg-white/5 my-2" />

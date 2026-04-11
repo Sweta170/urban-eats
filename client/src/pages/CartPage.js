@@ -3,6 +3,7 @@ import axios from "../utils/axiosInstance";
 import { getAccessToken } from "../utils/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ChevronRight, ShoppingBag, ArrowLeft, ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
+import SuggestedPairings from "../components/common/SuggestedPairings";
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
@@ -157,6 +158,18 @@ export default function CartPage() {
                   </div>
                 </div>
               ))}
+              
+              {/* Upsell Section */}
+              {cart.length > 0 && (
+                <div className="mt-16">
+                  <SuggestedPairings 
+                    foodId={cart[0].food?._id} 
+                    onAdd={(fid) => updateQuantity(fid, 1)}
+                    isAddingId={updating} 
+                    favorites={[]}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Compact Summary Sidebar */}

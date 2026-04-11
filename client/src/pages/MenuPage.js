@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axiosInstance";
 import FoodCard from "../components/common/FoodCard";
-import { Search, SlidersHorizontal, ChevronRight, Filter, ShoppingBag, Sparkles, LayoutGrid } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, Filter, ShoppingBag, Sparkles, LayoutGrid, Mic } from "lucide-react";
 import { getAccessToken } from "../utils/auth";
+import VoiceSearch from "../components/common/VoiceSearch";
 
 export default function MenuPage() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ export default function MenuPage() {
       if (minRating) queryParams.append("minRating", minRating);
       if (sort) queryParams.append("sort", sort);
 
-      const res = await axios.get("http://localhost:5000/api/food", { params: Object.fromEntries(queryParams) });
+      const res = await axios.get("/food", { params: Object.fromEntries(queryParams) });
       setFoods(res.data.data || []);
     } catch (err) {
       setError("Failed to load collection");
@@ -56,14 +57,14 @@ export default function MenuPage() {
 
   const fetchRecommended = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/food/recommended");
+      const res = await axios.get("/food/recommended");
       if (res.data.success) setRecommendedFoods(res.data.data);
     } catch (err) { }
   };
 
   const fetchFavorites = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/favorite");
+      const res = await axios.get("/favorite");
       if (res.data.success) setFavorites(res.data.data.map(f => f._id));
     } catch (err) { }
   };
@@ -71,7 +72,7 @@ export default function MenuPage() {
   const handleToggleFavorite = async (foodId) => {
     if (!isLoggedIn) return navigate("/login");
     try {
-      const res = await axios.post("http://localhost:5000/api/favorite/toggle", { foodId });
+      const res = await axios.post("/favorite/toggle", { foodId });
       if (res.data.success) {
         setFavorites(res.data.data.isFavorite ? [...favorites, foodId] : favorites.filter(id => id !== foodId));
       }
@@ -198,6 +199,7 @@ export default function MenuPage() {
                   onChange={e => setKeyword(e.target.value)}
                 />
               </div>
+              <VoiceSearch onSearch={(text) => setKeyword(text)} />
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`p-2.5 rounded-lg border transition-all ${showFilters

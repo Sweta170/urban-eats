@@ -21,6 +21,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import WalletPage from "./pages/WalletPage";
 import { getAccessToken, getUserRole } from "./utils/auth";
 
 function isAuthenticated() {
@@ -136,6 +137,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <OrderTrackingPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/wallet"
+              element={
+                <PrivateRoute>
+                  <WalletPage />
                 </PrivateRoute>
               }
             />

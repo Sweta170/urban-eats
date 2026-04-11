@@ -15,6 +15,9 @@ const promoRoutes = require('./routes/promo');
 const couponRoutes = require('./routes/couponRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const restaurantRoutes = require('./routes/restaurant');
+const walletRoutes = require('./routes/walletRoutes');
+const riderRoutes = require('./routes/rider');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 app.use(cors());
@@ -31,6 +34,9 @@ app.use('/api/order', orderRoutes);
 app.use('/api/favorite', favoriteRoutes);
 app.use('/api/promo', promoRoutes);
 app.use('/api/coupon', couponRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/rider', riderRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/review', require('./routes/review'));
 
 // Health check

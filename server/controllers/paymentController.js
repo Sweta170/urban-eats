@@ -3,6 +3,8 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Order = require('../models/Order');
+const User = require('../models/User');
+const Transaction = require('../models/Transaction');
 
 // @desc    Create Stripe Checkout Session
 // @route   POST /api/payment/create-checkout-session
@@ -74,9 +76,25 @@ exports.verifyPayment = async (req, res) => {
 
         if (session.payment_status === 'paid') {
             const order = await Order.findById(orderId);
-            if (order) {
+            if (order && order.paymentStatus !== 'Paid') {
                 order.paymentStatus = 'Paid';
                 await order.save();
+
+                // Credit Cashback for Card Payment
+                const user = await User.findById(order.user);
+                if (user && order.walletAmountEarned > 0) {
+                    user.walletBalance += order.walletAmountEarned;
+                    await user.save();
+
+                    await Transaction.create({
+                        user: user._id,
+                        order: order._id,
+                        amount: order.walletAmountEarned,
+                        type: 'credit',
+                        description: `5% Cashback for order #${order._id.toString().slice(-6)}`
+                    });
+                }
+
                 return res.status(200).json({ success: true, message: "Payment verified successfully" });
             }
         }

@@ -1,7 +1,8 @@
 // Middleware to check user role
-module.exports = function(requiredRole) {
+module.exports = function(requiredRoles) {
   return (req, res, next) => {
-    if (!req.user || req.user.role !== requiredRole) {
+    const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({ success: false, message: 'Forbidden: Insufficient role' });
     }
     next();

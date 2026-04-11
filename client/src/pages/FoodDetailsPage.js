@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "../utils/axiosInstance";
 import { getAccessToken } from "../utils/auth";
+import SuggestedPairings from "../components/common/SuggestedPairings";
 import { ArrowLeft, Star, ShoppingBag, Send, Heart, ChevronRight, Check, Plus, Minus, Sparkles, Clock, ShieldCheck } from "lucide-react";
 
 export default function FoodDetailsPage() {
@@ -21,6 +22,8 @@ export default function FoodDetailsPage() {
     const [submitting, setSubmitting] = useState(false);
     const [reviewError, setReviewError] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
+    const [allFavorites, setAllFavorites] = useState([]);
+
 
     const isAuthenticated = !!getAccessToken();
 
@@ -43,7 +46,9 @@ export default function FoodDetailsPage() {
             if (isAuthenticated) {
                 const favRes = await axios.get("http://localhost:5000/api/favorite");
                 if (favRes.data.success) {
-                    setIsFavorite(favRes.data.data.some(f => f._id === id));
+                    const favIds = favRes.data.data.map(f => f._id);
+                    setAllFavorites(favIds);
+                    setIsFavorite(favIds.includes(id));
                 }
             }
         } catch (err) {
@@ -52,23 +57,25 @@ export default function FoodDetailsPage() {
         setLoading(false);
     };
 
-    const handleToggleFavorite = async () => {
+    const handleToggleFavorite = async (targetId = id) => {
         if (!isAuthenticated) return navigate("/login");
         try {
-            const res = await axios.post("http://localhost:5000/api/favorite/toggle", { foodId: id });
+            const res = await axios.post("http://localhost:5000/api/favorite/toggle", { foodId: targetId });
             if (res.data.success) {
-                setIsFavorite(res.data.data.isFavorite);
+                const isNowFavorite = res.data.data.isFavorite;
+                if (targetId === id) setIsFavorite(isNowFavorite);
+                setAllFavorites(prev => isNowFavorite ? [...prev, targetId] : prev.filter(fid => fid !== targetId));
             }
         } catch (err) {
             console.error("Failed to toggle favorite", err);
         }
     };
 
-    const handleAddToCart = async () => {
+    const handleAddToCart = async (targetId = id, targetQty = quantity) => {
         if (!isAuthenticated) return navigate("/login");
-        setAdding(true);
+        setAdding(targetId);
         try {
-            await axios.post("/cart", { foodId: id, quantity });
+            await axios.post("/cart", { foodId: targetId, quantity: targetQty });
             setAdding(false);
             setSuccessMsg("Added to cart!");
             setTimeout(() => setSuccessMsg(""), 2000);
@@ -235,6 +242,15 @@ export default function FoodDetailsPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Suggested Pairings (New Advanced Feature) */}
+                <SuggestedPairings 
+                    foodId={id} 
+                    onAdd={(fid) => handleAddToCart(fid === id ? 1 : 1)} // Simplified for now
+                    isAddingId={adding ? id : ""} 
+                    favorites={allFavorites} 
+                    onToggleFavorite={handleToggleFavorite} 
+                />
 
                 {/* Reviews Section */}
                 <div className="mt-20">

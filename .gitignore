@@ -44,3 +44,10 @@ Thumbs.db
 
 # Coverage
 /coverage
+
+# Expo
+mobile/.expo/
+.expo/
+
+# Test results
+client/test-results/

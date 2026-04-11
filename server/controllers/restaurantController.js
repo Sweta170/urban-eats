@@ -38,6 +38,57 @@ exports.getMenu = async (req, res) => {
     }
 };
 
+// Create menu item
+exports.createMenuItem = async (req, res) => {
+    try {
+        const { name, price, category, description, imageUrl } = req.body;
+        const food = new Food({
+            name,
+            price,
+            category,
+            description,
+            imageUrl,
+            restaurant: req.restaurant._id
+        });
+        await food.save();
+        res.status(201).json(response(true, 'Dish added to menu', food));
+    } catch (err) {
+        res.status(500).json(response(false, err.message));
+    }
+};
+
+// Delete menu item
+exports.deleteMenuItem = async (req, res) => {
+    try {
+        const food = await Food.findOneAndDelete({ _id: req.params.id, restaurant: req.restaurant._id });
+        if (!food) return res.status(404).json(response(false, 'Dish not found or unauthorized'));
+        res.status(200).json(response(true, 'Dish removed from menu'));
+    } catch (err) {
+        res.status(500).json(response(false, err.message));
+    }
+};
+
+// Get restaurant orders
+exports.getOrders = async (req, res) => {
+    try {
+        const orders = await Order.find({ 'items.restaurant': req.restaurant._id })
+            .populate('user', 'name email')
+            .populate('items.food', 'name price')
+            .sort({ createdAt: -1 });
+
+        // Filter items in each order to only show those belonging to this restaurant
+        const filteredOrders = orders.map(order => {
+            const orderObj = order.toObject();
+            orderObj.items = orderObj.items.filter(item => item.restaurant.toString() === req.restaurant._id.toString());
+            return orderObj;
+        });
+
+        res.status(200).json(response(true, 'Orders fetched', filteredOrders));
+    } catch (err) {
+        res.status(500).json(response(false, err.message));
+    }
+};
+
 // Update restaurant profile
 exports.updateProfile = async (req, res) => {
     try {
