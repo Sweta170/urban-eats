@@ -34,7 +34,7 @@ export default function FoodDetailsPage() {
     const fetchFoodDetails = async () => {
         setLoading(true);
         try {
-            const allFoods = await axios.get("http://localhost:5000/api/food");
+            const allFoods = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/food`));
             const foundFood = allFoods.data.data.find(f => f._id === id);
             setFood(foundFood);
 
@@ -44,7 +44,7 @@ export default function FoodDetailsPage() {
 
             // Check favorite status
             if (isAuthenticated) {
-                const favRes = await axios.get("http://localhost:5000/api/favorite");
+                const favRes = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/favorite`));
                 if (favRes.data.success) {
                     const favIds = favRes.data.data.map(f => f._id);
                     setAllFavorites(favIds);
@@ -60,7 +60,7 @@ export default function FoodDetailsPage() {
     const handleToggleFavorite = async (targetId = id) => {
         if (!isAuthenticated) return navigate("/login");
         try {
-            const res = await axios.post("http://localhost:5000/api/favorite/toggle", { foodId: targetId });
+            const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/favorite/toggle`), { foodId: targetId });
             if (res.data.success) {
                 const isNowFavorite = res.data.data.isFavorite;
                 if (targetId === id) setIsFavorite(isNowFavorite);
@@ -92,7 +92,7 @@ export default function FoodDetailsPage() {
         setSubmitting(true);
         setReviewError("");
         try {
-            const res = await axios.post("http://localhost:5000/api/review", {
+            const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/review`), {
                 foodId: id,
                 rating,
                 comment

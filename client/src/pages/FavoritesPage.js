@@ -18,7 +18,7 @@ export default function FavoritesPage() {
     const fetchFavorites = async () => {
         setLoading(true);
         try {
-            const res = await axios.get("http://localhost:5000/api/favorite");
+            const res = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/favorite`));
             if (res.data.success) {
                 setFavorites(res.data.data);
             }
@@ -30,7 +30,7 @@ export default function FavoritesPage() {
 
     const handleToggleFavorite = async (foodId) => {
         try {
-            const res = await axios.post("http://localhost:5000/api/favorite/toggle", { foodId });
+            const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/favorite/toggle`), { foodId });
             if (res.data.success) {
                 setFavorites(favorites.filter(f => f._id !== foodId));
             }

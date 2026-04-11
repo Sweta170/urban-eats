@@ -31,7 +31,7 @@ export default function LoginPage() {
 		}
 		setIsLoading(true);
 		try {
-			const res = await axios.post("http://localhost:5000/api/auth/login", form);
+			const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/login`), form);
 			if (res.data.success) {
 				setSuccess("Login successful!");
 				setTokens({

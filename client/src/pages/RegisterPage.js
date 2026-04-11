@@ -40,7 +40,7 @@ export default function RegisterPage() {
     }
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", form);
+      const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/register`), form);
       if (res.data.success) {
         setSuccess("Registration successful! Redirecting...");
         setTokens({

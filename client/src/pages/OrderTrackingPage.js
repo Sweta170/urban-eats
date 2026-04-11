@@ -16,7 +16,7 @@ import { io } from "socket.io-client";
 import LiveMap from "../components/common/LiveMap";
 
 
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = (`${process.env.REACT_APP_API_URL || "http://localhost:5000"}`);
 
 export default function OrderTrackingPage() {
     const { id } = useParams();

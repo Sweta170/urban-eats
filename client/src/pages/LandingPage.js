@@ -38,7 +38,7 @@ export default function LandingPage() {
     useEffect(() => {
         const fetchPopular = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/food/popular");
+                const res = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/food/popular`));
                 if (res.data.success) {
                     setPopularFoods(res.data.data.slice(0, 6));
                 }

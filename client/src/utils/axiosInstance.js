@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./auth";
 
 const instance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: (`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api`),
 });
 
 // Request: Attach access token
@@ -30,7 +30,7 @@ instance.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const res = await axios.post("http://localhost:5000/api/auth/refresh-token", {
+        const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/refresh-token`), {
           refreshToken: getRefreshToken(),
         });
         if (res.data.success) {

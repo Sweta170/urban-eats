@@ -11,7 +11,7 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/auth/me");
+                const res = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/me`));
                 setUser(res.data.data);
             } catch (err) {
                 navigate("/login");

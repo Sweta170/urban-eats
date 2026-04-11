@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
+      const res = await axios.post((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/forgot-password`), { email });
       if (res.data.success) {
         setMessage("Password reset email sent. Please check your inbox.");
       } else {

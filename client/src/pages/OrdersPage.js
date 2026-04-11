@@ -13,7 +13,7 @@ export default function OrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/order");
+        const res = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/order`));
         setOrders(res.data.data);
       } catch (err) {
         console.error("Failed to load orders", err);

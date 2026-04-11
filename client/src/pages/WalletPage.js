@@ -22,7 +22,7 @@ export default function WalletPage() {
     useEffect(() => {
         const fetchWallet = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/wallet");
+                const res = await axios.get((`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/wallet`));
                 if (res.data.success) {
                     setWalletData(res.data);
                 }
